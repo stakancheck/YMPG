@@ -8,7 +8,7 @@ from pprint import pprint
 from settings import CLIENT_SECRET, CLIENT_ID
 from dataclasses import dataclass
 
-logging.basicConfig(filename='logs.log', filemode='w')
+logger = logging.getLogger('authorize_client')
 
 
 @dataclass
@@ -33,14 +33,14 @@ class Authorize:
     URL = 'https://oauth.yandex.ru/'
 
     def __init__(self, client_id: str, client_secret: str):
+        self.data = None
         self.client_id = client_id
         self.client_secret = client_secret
         self.device = socket.gethostname()
         self.uuid = uuid.uuid4()
         self.is_auth = False
-        self.data: AuthData
 
-    def request_code(self):
+    def request_code(self) -> bool:
         """
         Запрос на регистрацию (вызов браузера)
 
@@ -54,8 +54,10 @@ class Authorize:
 
         try:
             webbrowser.open(result_link, new=2)
+            return True
         except Exception as e:
-            logging.error('')
+            logger.error(f'Request code failed with {e}')
+            return False
 
     def get_token(self, personal_code) -> ResponseAuth:
         """
@@ -78,13 +80,14 @@ class Authorize:
             if request_auth.status_code == 200:
                 data = request_auth.json()
                 self.is_auth = True
-                self.data = AuthData(
+                data = AuthData(
                     access_token=data['access_token'],
                     expires_in=data['expires_in'],
                     refresh_token=data['refresh_token'],
                     token_type=data['token_type']
                 )
-                return ResponseAuth(callback=self.data,
+                self.data = data
+                return ResponseAuth(callback=data,
                                     success=True)
 
             else:
