@@ -25,7 +25,8 @@
 <h2>
 Презентация
 </h2>
-<img src="github/assets/qr-code.png" width="30%" alt="yandex-disk">
+
+[Яндекс диск](https://disk.yandex.ru/d/FXBsiUzjUF3RQQ)
 
 
 <h2>
